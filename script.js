@@ -1,5 +1,62 @@
 import { supabase } from './supabase.js';
+async function loadSiteSettings(){
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('content')
+    .eq('key', 'main')
+    .maybeSingle();
 
+  if(error || !data?.content) return;
+
+  const s = data.content;
+
+  const logo = document.querySelector('.brand-logo');
+  if(logo && s.logo) logo.src = s.logo;
+
+  const heroVideo = document.querySelector('.hero-video');
+  if(heroVideo && s.heroVideo){
+    heroVideo.src = s.heroVideo;
+    heroVideo.load();
+    heroVideo.play().catch(()=>{});
+  }
+
+  const heroEyebrow = document.querySelector('.hero .eyebrow');
+  if(heroEyebrow && s.heroEyebrow) heroEyebrow.textContent = s.heroEyebrow;
+
+  const heroTitle = document.querySelector('.hero h1');
+  if(heroTitle && s.heroTitle) heroTitle.innerHTML = s.heroTitle;
+
+  const heroLead = document.querySelector('.hero .lead');
+  if(heroLead && s.heroLead) heroLead.textContent = s.heroLead;
+
+  const aboutTitle = document.querySelector('#about h2');
+  if(aboutTitle && s.aboutTitle) aboutTitle.textContent = s.aboutTitle;
+
+  const aboutLead = document.querySelector('#about .lead');
+  if(aboutLead && s.aboutLead) aboutLead.textContent = s.aboutLead;
+
+  const aboutTexts = document.querySelectorAll('#about .copy p');
+  if(aboutTexts[0] && s.aboutText1) aboutTexts[0].textContent = s.aboutText1;
+  if(aboutTexts[1] && s.aboutText2) aboutTexts[1].textContent = s.aboutText2;
+
+  const servicesTitle = document.querySelector('#services h2');
+  if(servicesTitle && s.servicesTitle) servicesTitle.textContent = s.servicesTitle;
+
+  const portfolioTitle = document.querySelector('#portfolio h2');
+  if(portfolioTitle && s.portfolioTitle) portfolioTitle.textContent = s.portfolioTitle;
+
+  const contactTitle = document.querySelector('#contact h2');
+  if(contactTitle && s.contactTitle) contactTitle.textContent = s.contactTitle;
+
+  const contactLead = document.querySelector('#contact .lead');
+  if(contactLead && s.contactLead) contactLead.textContent = s.contactLead;
+
+  document.querySelectorAll('a[href*="wa.me"]').forEach(a=>{
+    if(s.whatsapp) a.href = `https://wa.me/${s.whatsapp}`;
+  });
+}
+
+loadSiteSettings();
 const fallbackSettings = {
   logo: 'assets/logo.png',
   heroVideo: 'assets/media/hero-wood.mp4',
