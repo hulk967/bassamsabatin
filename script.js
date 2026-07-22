@@ -160,7 +160,7 @@ function applySettings(){
   if(heroEyebrow) heroEyebrow.textContent = settings.heroEyebrow;
 
   const heroTitle = $('.hero-content h1');
-  if(heroTitle) heroTitle.innerHTML = settings.heroTitle;
+  if(heroTitle) setSafeHeroTitle(heroTitle, settings.heroTitle);
 
   const heroLead = $('.hero-content .lead');
   if(heroLead) heroLead.textContent = settings.heroLead;
@@ -195,7 +195,26 @@ function applySettings(){
   }
 
   document.querySelectorAll('a[href*="wa.me"]').forEach(a => {
-    a.href = `https://wa.me/${settings.whatsapp || fallbackSettings.whatsapp}`;
+    a.href = `https://wa.me/${cleanPhone(settings.whatsapp)}`;
+  });
+
+  const phone = $('[data-contact="phone"]');
+  if(phone) phone.href = `tel:+${cleanPhone(settings.whatsapp)}`;
+}
+
+function cleanPhone(value){
+  return String(value || fallbackSettings.whatsapp).replace(/\D/g, '').slice(0, 15) || fallbackSettings.whatsapp;
+}
+
+function setSafeHeroTitle(node, value){
+  const parts = String(value || '').split(/(<br\s*\/?\s*>|<span>|<\/span>)/gi);
+  node.replaceChildren();
+  let span = null;
+  parts.forEach(part => {
+    if(/^<br/i.test(part)) node.append(document.createElement('br'));
+    else if(/^<span>$/i.test(part)){ span = document.createElement('span'); node.append(span); }
+    else if(/^<\/span>$/i.test(part)) span = null;
+    else if(part) (span || node).append(document.createTextNode(part));
   });
 }
 
@@ -359,6 +378,7 @@ function openProjectPopup(id){
     const isVideo = /\.(mp4|webm|ogg)$/i.test(src);
     const node = document.createElement(isVideo ? 'video' : 'img');
 
+    if(!isSafeMediaUrl(src)) return;
     node.src = src;
 
     if(isVideo) node.controls = true;
@@ -374,6 +394,13 @@ function openProjectPopup(id){
   `;
 
   modal.classList.add('open');
+}
+
+function isSafeMediaUrl(value){
+  try{
+    const url = new URL(String(value), location.href);
+    return ['http:', 'https:'].includes(url.protocol) && (url.origin === location.origin || url.hostname.endsWith('.supabase.co'));
+  }catch{return false;}
 }
 
 function initUI(){
@@ -396,6 +423,12 @@ function initUI(){
   updateBa();
 
   observeReveals();
+
+  const backToTop = $('#backToTop');
+  const syncBackToTop = () => backToTop?.classList.toggle('visible', window.scrollY > 500);
+  backToTop?.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+  window.addEventListener('scroll', syncBackToTop, { passive:true });
+  syncBackToTop();
 }
 
 function hideLoader(){

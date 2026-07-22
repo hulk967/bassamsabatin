@@ -185,30 +185,17 @@
           <a class="btn ghost lift" href="https://wa.me/962798234541" target="_blank" rel="noreferrer">تواصل عبر واتساب</a>
         </div>
 
-        <form class="form reveal" onsubmit="event.preventDefault(); alert('تم استلام الطلب التجريبي.');">
-          <input required placeholder="الاسم" />
-          <input required placeholder="رقم الهاتف" />
-
-          <select required>
-            <option value="">نوع المشروع</option>
-            <option>مطبخ</option>
-            <option>خزائن</option>
-            <option>أثاث تفصيل</option>
-            <option>مشروع تجاري</option>
-          </select>
-
-          <input placeholder="المساحة التقريبية" />
-          <input placeholder="الميزانية المتوقعة" />
-          <input type="file" />
-          <textarea placeholder="رسالة إضافية"></textarea>
-
-          <button class="btn lift" type="submit">إرسال الطلب</button>
-        </form>
+        <div class="contact-list reveal" aria-label="قائمة التواصل">
+          <a class="contact-item lift" data-contact="whatsapp" href="https://wa.me/962798234541" target="_blank" rel="noopener noreferrer"><span class="contact-icon">واتساب</span><strong>راسلنا مباشرة</strong><small>استجابة سريعة لمناقشة مشروعك</small></a>
+          <a class="contact-item lift" data-contact="phone" href="tel:+962798234541"><span class="contact-icon">اتصال</span><strong>+962 79 823 4541</strong><small>للاستفسارات وحجز موعد</small></a>
+          <a class="contact-item lift" data-contact="location" href="https://www.google.com/maps/search/?api=1&query=Amman%2C%20Jordan" target="_blank" rel="noopener noreferrer"><span class="contact-icon">الموقع</span><strong>عمّان، الأردن</strong><small>اضغط لفتح الموقع على الخريطة</small></a>
+        </div>
       </div>
     </section>
   </main>
 
-  <a class="whatsapp lift" href="https://wa.me/962798234541" target="_blank" rel="noreferrer">واتساب</a>
+  <button id="backToTop" class="back-to-top" type="button" aria-label="الرجوع إلى أعلى الصفحة">↑</button>
+  <a class="whatsapp lift" href="https://wa.me/962798234541" target="_blank" rel="noopener noreferrer">واتساب</a>
 
   <script type="module" src="script.js"></script>
 </body>

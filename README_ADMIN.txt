@@ -1,14 +1,12 @@
-Bassam Sabatin Woodworks — Secure Admin Version
+Bassam Sabatin Woodworks — النسخة النهائية
 
-1) ارفع الملفات على GitHub ثم Netlify.
+1) افتح Supabase > Authentication > Users > Add user وأنشئ مستخدم الأدمن أولاً.
 2) افتح Supabase > SQL Editor.
-3) انسخ محتوى ملف supabase-setup.sql وشغله Run.
-4) افتح Supabase > Authentication > Users > Add user.
-5) أضف إيميل وباسورد الأدمن.
-6) بعد النشر افتح لوحة الإدارة من:
-   https://YOUR-SITE.netlify.app/admin.html
-7) ادخل بالإيميل والباسورد.
-8) من اللوحة تقدر تعدل:
+3) انسخ محتوى supabase-setup.sql كاملًا وشغله مرة واحدة. يمكن إعادة تشغيله دون حذف المحتوى.
+4) ارفع محتويات هذا المجلد كما هي إلى Netlify، واجعل Publish directory هو النقطة: .
+5) افتح لوحة الإدارة من: https://YOUR-SITE.netlify.app/admin.html
+6) سجل الدخول بإيميل وباسورد مستخدم الأدمن.
+7) من اللوحة تقدر تعدل:
    - اللوجو
    - فيديو الخلفية
    - نصوص الصفحة الرئيسية
@@ -18,7 +16,7 @@ Bassam Sabatin Woodworks — Secure Admin Version
    - رفع صور وفيديوهات
 
 مهم:
-- لا يوجد تعديل عبر الضغط على اللوجو الآن.
-- الزوار يقرأون الموقع فقط.
-- الكتابة والحذف والرفع تحتاج Login من Supabase Auth.
-- إذا تريد تمنع أي حساب غير إيميلك من التعديل، أخبرني بإيميل الأدمن وأعطيك سياسة SQL مخصصة له فقط.
+- ملف supabase.js يحتوي المفتاح العام anon فقط. لا تضع service_role أو أي مفتاح سري في ملفات الموقع.
+- المستخدمون الموجودون في Supabase Auth وقت تشغيل SQL يصبحون إداريين. أنشئ فقط الحسابات التي تريد منحها الإدارة قبل التشغيل.
+- الزوار يستطيعون القراءة فقط. الكتابة والحذف والرفع محصورة بجدول admin_users وسياسات RLS.
+- إذا أضفت أدمن لاحقاً، أعد تشغيل supabase-setup.sql بعد إنشاء الحساب.

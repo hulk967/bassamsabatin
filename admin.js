@@ -34,11 +34,19 @@ const status = (msg, err = false) => {
   setTimeout(() => n.textContent = '', 3500);
 };
 
+const readableError = error => {
+  const message = String(error?.message || error || 'حدث خطأ غير معروف');
+  if(/row-level security|permission denied/i.test(message)) return 'ليس لديك صلاحية الإدارة. شغّل ملف supabase-setup.sql ثم أعد تسجيل الدخول.';
+  if(/Failed to fetch|NetworkError/i.test(message)) return 'تعذر الاتصال بقاعدة البيانات. تحقق من الإنترنت وإعدادات Supabase.';
+  return message;
+};
+
 const lines = v => String(v || '').split('\n').map(x => x.trim()).filter(Boolean);
 const join = a => Array.isArray(a) ? a.join('\n') : '';
 
 async function requireLogin() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) $('#loginError').textContent = readableError(error);
   if (session) {
     showDashboard();
   } else {
@@ -77,7 +85,8 @@ if ($('#logoutBtn')) {
 async function showDashboard() {
   $('#loginBox')?.classList.add('hidden');
   $('#dashboard')?.classList.remove('hidden');
-  await loadAll();
+  try { await loadAll(); }
+  catch (error) { status(readableError(error), true); }
   bindTabs();
 }
 
@@ -235,14 +244,26 @@ if ($('#uploadHeroVideo')) {
 async function upload(file) {
   if (!file) return null;
 
-  const path = `uploads/${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+  const allowed = /^(image\/(jpeg|png|webp|gif)|video\/(mp4|webm))$/i;
+  const maxSize = file.type.startsWith('video/') ? 100 * 1024 * 1024 : 25 * 1024 * 1024;
+  if (!allowed.test(file.type)) {
+    status('نوع الملف غير مسموح. استخدم JPG أو PNG أو WebP أو GIF أو MP4 أو WebM.', true);
+    return null;
+  }
+  if (file.size > maxSize) {
+    status(`حجم الملف أكبر من الحد المسموح (${file.type.startsWith('video/') ? 100 : 25}MB).`, true);
+    return null;
+  }
+
+  const extension = file.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin';
+  const path = `uploads/${crypto.randomUUID()}.${extension}`;
 
   const { error } = await supabase.storage
     .from('site-assets')
     .upload(path, file, { upsert: false });
 
   if (error) {
-    status('خطأ رفع الملف: ' + error.message, true);
+    status('خطأ رفع الملف: ' + readableError(error), true);
     return null;
   }
 
@@ -254,7 +275,11 @@ async function upload(file) {
 function itemBtn(item, txt, cb) {
   const b = document.createElement('button');
   b.type = 'button';
-  b.innerHTML = `<b>${txt}</b><span>#${item.id || ''}</span>`;
+  const title = document.createElement('b');
+  const meta = document.createElement('span');
+  title.textContent = txt;
+  meta.textContent = `#${item.id || ''}`;
+  b.append(title, meta);
   b.onclick = () => cb(item);
   return b;
 }
@@ -318,7 +343,12 @@ if ($('#projectFiles')) {
         ...urls
       ].filter(Boolean).join('\n');
 
-      $('#projectUploadPreview').innerHTML = urls.map(u => `<img src="${u}">`).join('');
+      $('#projectUploadPreview').replaceChildren(...urls.map(u => {
+        const img = document.createElement('img');
+        img.src = u;
+        img.alt = 'معاينة الملف المرفوع';
+        return img;
+      }));
     }
   };
 }
